@@ -18,5 +18,5 @@ Export to github blog from exists blog system.
 ## Usage
 
 1. Install [Node.js](https://nodejs.org/)
-2. `npm install -g github-exporter`
+2. `npm install -g blog-exporter`
 3. `blog-exporter`
