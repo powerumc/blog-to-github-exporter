@@ -8,7 +8,7 @@ Export to github blog from exists blog system.
 - [ ] [Naver](https://blog.naver.com)
 - [ ] [Wordpress](https://wordpress.com)
 
-### Export to
+### Exports to
 - [ ] [Hexo](https://hexo.io)
 - [ ] [Jekyll](https://jekyllrb.com)
 
