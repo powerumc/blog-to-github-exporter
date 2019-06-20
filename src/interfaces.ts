@@ -1,6 +1,10 @@
+import "reflect-metadata";
+import { IImporterProvider, IExporterProvider } from "./providers";
+import { URIComponents } from "uri-js";
+
 export interface IBlog {
   title: string;
-  url: string;
+  url: URIComponents;
   description: string;
   owner: string;
   feeds: IBlogFeed[];
@@ -13,19 +17,29 @@ export interface IBlogFeed {
   tags: string[];
 }
 
-export interface IImporterProviderConstructor {
-  new (url: string): IImporterProvider;
+export const importers: { [name: string]: IImporterProvider} = {};
+export const exporters: { [name: string]: IExporterProvider} = {};
+
+export function Importer(name: string) {
+  return function <T extends { new (...args: any[]): {} }>(constructor: T) {
+    if (Object.keys(importers).includes(name)) {
+      throw new Error(`Already exists importer name '${name}'`);
+    }
+
+    importers[name] = <IImporterProvider><unknown>constructor;
+
+    return class extends constructor { }
+  }
 }
 
-export interface IImporterProvider {
-  name: string;
-}
+export function Exporter(name: string) {
+  return function <T extends { new (...args: any[]): {} }>(constructor: T) {
+    if (Object.keys(exporters).includes(name)) {
+      throw new Error(`Already exists exporter name '${name}'`);
+    }
 
-export interface IExporterProviderConstructor<T> {
-  new (engine: T): IExporterProvider<T>;
-}
+    exporters[name] = constructor;
 
-export interface IExporterProvider<T> {
-  name: string;
-  engine: string;
+    return class extends constructor { }
+  }
 }
