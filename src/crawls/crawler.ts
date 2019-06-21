@@ -8,10 +8,11 @@ import { URIComponents } from "uri-js";
 
 export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
-  baseUriComponent: URIComponents;
-  provider: CrawlerProvider;
-  pages = new CrawlingInfo();
-  importer: IImporterProvider;
+  private baseUriComponent: URIComponents;
+  private provider: CrawlerProvider;
+  private pages = new CrawlingInfo();
+  private importer: IImporterProvider;
+  private current: number = 0;
 
   constructor(private baseUrl: string, 
     providerType: ICrawlerProviderConstructor<TProvider>,
@@ -32,6 +33,9 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   }
 
   async recursive(url: string): Promise<void> {
+    this.current++;
+    console.log(`${url}`);
+
     const dom = await this.provider.getHtml(url);
     if (dom === null) return;
 
@@ -44,7 +48,8 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
       if (!this.pages.urls.includes(urlString)) {
 
-        console.log(urlString);
+        // console.log(urlString);
+        console.log(`\t- (${this.current}/${this.pages.urls.length}) ${urlString}`);
 
         this.pages.add(urlString, {
           url: urlString,

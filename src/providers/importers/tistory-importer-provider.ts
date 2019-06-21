@@ -36,9 +36,18 @@ export class TistoryImporterProvider implements IImporterProvider {
     const $anchors = dom("a[href]");
     
     for(const a of $anchors.toArray()) {
-      anchors.push(a.attribs["href"]);
+      const url = a.attribs["href"];
+      if (this.isIgnoreUrl(url)) continue;
+
+      anchors.push(url);
     }
 
     return anchors;
+  }
+
+  isIgnoreUrl(url: string): boolean {
+    return url.includes("attachment/") ||
+      url.includes("upload/") ||
+      url.includes("#");
   }
 }

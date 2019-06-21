@@ -10,6 +10,7 @@ export interface IImporterProvider {
   getTitle(dom: CheerioStatic): string;
   getContent(dom: CheerioStatic): string | null;
   getLinks(dom: CheerioStatic): string[];
+  isIgnoreUrl(url: string): boolean;
 }
 
 export interface IExporterProviderConstructor<T> {
