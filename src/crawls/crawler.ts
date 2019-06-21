@@ -1,3 +1,5 @@
+import process from "process";
+import fs from "fs";
 import * as Uri from "uri-js";
 import { ICrawler, CrawlingInfo, ICrawlingPageInfo } from "./interfaces";
 import { CrawlerProvider, ICrawlerProviderConstructor } from "./providers"
@@ -20,6 +22,16 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
       this.baseUriComponent = Uri.parse(baseUrl);
       this.provider = new providerType("");
       this.importer = new importer("");
+
+      process.on("SIGINT", (signal) => {
+        console.log("Interrupted");
+        fs.writeFileSync(".data.json", JSON.stringify({
+          urls: this.pages.urls,
+          completedUrls: this.pages.completedUrls,
+          objects: this.pages.objects
+        }, null, 2));
+        process.exit();
+      });
   }
 
   async process() {
