@@ -22,4 +22,23 @@ export class TistoryImporterProvider implements IImporterProvider {
       throw e;
     }
   }
+
+  getTitle(dom: CheerioStatic): string {
+    return dom(".titleWrap h2 a").text();
+  }
+
+  getContent(dom: CheerioStatic): string | null {
+    return dom(".article").html();
+  }
+
+  getLinks(dom: CheerioStatic): string[] {
+    const anchors: string[] = [];
+    const $anchors = dom("a[href]");
+    
+    for(const a of $anchors.toArray()) {
+      anchors.push(a.attribs["href"]);
+    }
+
+    return anchors;
+  }
 }

@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from "axios";
 import cheerio from "cheerio";
 import RssParser from "rss-parser";
-import { ICrawler } from "./interfaces";
+import { CrawlerProvider } from "./crawler-provider";
 
-export class AxioCrawler implements ICrawler {
+export class AxioCrawlerProvider implements CrawlerProvider {
   
   private axio: AxiosInstance;
 
@@ -16,10 +16,11 @@ export class AxioCrawler implements ICrawler {
   open(): void {
   }
 
-  async getHtml(url: string): Promise<CheerioStatic> {
+  async getHtml(url: string): Promise<CheerioStatic | null> {
     try {
       const response = await this.axio.get(url);
       if (response.status !== 200) {
+        console.log(response);
         throw new Error(`${url} status code is not 200 ok.`);
       }
 
@@ -28,14 +29,8 @@ export class AxioCrawler implements ICrawler {
 
       return dom;
     } catch(e) {
-      throw e;
+      return null;
     }
-  }
-
-  detectRssFeedsUrl(dom: CheerioStatic): string | null {
-    const url = dom("link[rel='alternate'][type='application/rss+xml']").attr("href");
-
-    return url || null;
   }
 
   async getRss(url: string | null): Promise<RssParser.Output> {
@@ -49,5 +44,11 @@ export class AxioCrawler implements ICrawler {
     } catch(e) {
       throw e;
     }
+  }
+
+  detectRssFeedsUrl(dom: CheerioStatic): string | null {
+    const url = dom("link[rel='alternate'][type='application/rss+xml']").attr("href");
+
+    return url || null;
   }
 }

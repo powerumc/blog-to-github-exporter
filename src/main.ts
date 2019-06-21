@@ -1,18 +1,15 @@
+import * as Uri from "uri-js";
 import * as a from "./providers";
 import { importers } from "./interfaces";
-import { AxioCrawler } from "./crawls";
+import { AxioCrawlerProvider, CrawlerProvider } from "./crawls/providers";
 import { TistoryImporterProvider } from "./providers";
+import { Crawler } from "./crawls/crawler";
 
-(async () => {
+( () => {
 
   const baseUrl = "https://blog.powerumc.kr";
-  const crawler = new AxioCrawler(baseUrl);
-  const dom = await crawler.getHtml(baseUrl);
-  const rssUrl = crawler.detectRssFeedsUrl(dom);
-  const rss = await crawler.getRss(rssUrl);
-  
-  const importer = new TistoryImporterProvider();
-  const info = importer.getBlogInfo(dom, rss);
+  const crawler = new Crawler(baseUrl, AxioCrawlerProvider, TistoryImporterProvider);
 
-  console.log(info);
+  crawler.process();
+  
 })();
