@@ -9,7 +9,14 @@ import { Crawler } from "./crawls/crawler";
 
   const baseUrl = "https://blog.powerumc.kr";
   const crawler = new Crawler(baseUrl, AxioCrawlerProvider, TistoryImporterProvider);
+  crawler.load();
 
-  crawler.process();
+  try {
+    crawler.process();
+  } catch(e) {
+    throw e;
+  } finally {
+    crawler.save();
+  }
   
 })();

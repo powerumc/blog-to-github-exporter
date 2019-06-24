@@ -61,4 +61,4 @@ typings/
 .next
 
 dist
-.data.json
+/*.json

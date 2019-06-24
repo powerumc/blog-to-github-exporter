@@ -2,7 +2,7 @@ import RssParser from "rss-parser";
 import { IBlog } from "../interfaces";
 
 export interface IImporterProviderConstructor {
-  new (url: string): IImporterProvider;
+  new (baseUrl: string): IImporterProvider;
 }
 
 export interface IImporterProvider {
@@ -10,6 +10,7 @@ export interface IImporterProvider {
   getTitle(dom: CheerioStatic): string;
   getContent(dom: CheerioStatic): string | null;
   getLinks(dom: CheerioStatic): string[];
+  isContentUrl(url: string): boolean;
   isIgnoreUrl(url: string): boolean;
 }
 

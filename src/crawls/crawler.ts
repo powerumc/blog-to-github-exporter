@@ -1,7 +1,7 @@
 import process from "process";
 import fs from "fs";
 import * as Uri from "uri-js";
-import { ICrawler, CrawlingInfo, ICrawlingPageInfo } from "./interfaces";
+import { ICrawler, CrawlingInfo, ICrawlingContentInfo } from "./interfaces";
 import { CrawlerProvider, ICrawlerProviderConstructor } from "./providers"
 import { IImporterProviderConstructor, IImporterProvider } from "../providers";
 import { getNormalizeUrl } from "..";
@@ -20,16 +20,13 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
     providerType: ICrawlerProviderConstructor<TProvider>,
     importer: IImporterProviderConstructor) {
       this.baseUriComponent = Uri.parse(baseUrl);
-      this.provider = new providerType("");
-      this.importer = new importer("");
+      this.provider = new providerType(baseUrl);
+      this.importer = new importer(baseUrl);
 
       process.on("SIGINT", (signal) => {
         console.log("Interrupted");
-        fs.writeFileSync(".data.json", JSON.stringify({
-          urls: this.pages.urls,
-          completedUrls: this.pages.completedUrls,
-          objects: this.pages.objects
-        }, null, 2));
+        process.removeAllListeners();
+        this.save();
         process.exit();
       });
   }
@@ -46,10 +43,19 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
   async recursive(url: string): Promise<void> {
     this.current++;
-    console.log(`${url}`);
+    console.log(`(${this.current}) ${url}`);
 
     const dom = await this.provider.getHtml(url);
     if (dom === null) return;
+
+    this.pages.addCompleted(url);
+    if (this.importer.isContentUrl(url)) {
+      this.pages.addContent({
+        url: url,
+        title: this.importer.getTitle(dom),
+        content: this.importer.getContent(dom)
+      });
+    }
 
     const links = this.importer.getLinks(dom);
     for(const link of links) {
@@ -58,25 +64,27 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
       if (url.host !== this.baseUriComponent.host) continue;
 
-      if (!this.pages.urls.includes(urlString)) {
-
-        // console.log(urlString);
-        console.log(`\t- (${this.current}/${this.pages.urls.length}) ${urlString}`);
-
-        this.pages.add(urlString, {
-          url: urlString,
-          title: this.importer.getTitle(dom),
-          content: this.importer.getContent(dom)
-        });
+      if (this.importer.isIgnoreUrl(urlString)) continue;
+      if (!this.pages.isIncludesQueue(urlString)) {
+        console.log(`\t- detected (${this.pages.urls.length}): ${urlString}`);
+        this.pages.addQueue(urlString);
       }
     }
 
     await delay(3000);
 
-    let next: ICrawlingPageInfo | null;
-    while ((next = this.pages.pop()) !== null) {
-      await this.recursive(next.url);
+    let next: string | null;
+    while ((next = this.pages.popQueue()) !== null) {
+      await this.recursive(next);
     }
+  }
+
+  load() {
+    this.pages.load(this.baseUriComponent.host + ".json");
+  }
+
+  save() {
+    this.pages.save(this.baseUriComponent.host + ".json");
   }
   
 }
