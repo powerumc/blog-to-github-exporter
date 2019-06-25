@@ -8,6 +8,8 @@ export interface ICrawlingContentInfo {
   title: string;
   url: string;
   content: string | null;
+  category: string;
+  date: string;
 }
 
 export class CrawlingInfo {

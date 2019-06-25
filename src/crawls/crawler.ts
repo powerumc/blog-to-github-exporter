@@ -38,7 +38,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
     const rssUrl = this.provider.detectRssFeedsUrl(dom);
     const rss = await this.provider.getRss(rssUrl);
 
-    this.recursive(this.baseUrl);
+    await this.recursive(this.baseUrl);
   }
 
   async recursive(url: string): Promise<void> {
@@ -53,7 +53,9 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
       this.pages.addContent({
         url: url,
         title: this.importer.getTitle(dom),
-        content: this.importer.getContent(dom)
+        content: this.importer.getContent(dom),
+        category: this.importer.getCategory(dom),
+        date: this.importer.getDate(dom)
       });
     }
 
@@ -63,12 +65,11 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
       const urlString = Uri.serialize(url);
 
       if (url.host !== this.baseUriComponent.host) continue;
-
       if (this.importer.isIgnoreUrl(urlString)) continue;
-      if (!this.pages.isIncludesQueue(urlString)) {
-        console.log(`\t- detected (${this.pages.urls.length}): ${urlString}`);
-        this.pages.addQueue(urlString);
-      }
+      if (this.pages.isIncludesQueue(urlString)) continue;
+
+      console.log(`\t- detected (${this.pages.urls.length}): ${urlString}`);
+      this.pages.addQueue(urlString);
     }
 
     await delay(3000);

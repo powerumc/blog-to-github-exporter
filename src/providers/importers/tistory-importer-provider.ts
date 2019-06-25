@@ -9,7 +9,7 @@ export class TistoryImporterProvider implements IImporterProvider {
   private contentUrlPattern: RegExp;
 
   constructor(private baseUrl: string) {
-    this.contentUrlPattern = new RegExp(`${this.baseUrl}\/([0-9]+$|(entry\/.+$))`,"g");
+    this.contentUrlPattern = new RegExp(`${this.baseUrl}\/([0-9]+$|(entry\/.+$))`);
   }
 
   getBlogInfo(dom: CheerioStatic, rss: RssParser.Output): IBlog {
@@ -51,8 +51,15 @@ export class TistoryImporterProvider implements IImporterProvider {
     return anchors;
   }
 
+  getCategory(dom: CheerioStatic): string {
+    return dom(".entry .titleWrap a").last().text();
+  }
+
+  getDate(dom: CheerioStatic): string {
+    return "";
+  }
+
   isContentUrl(url: string): boolean {
-    console.log(`${url} is ${this.contentUrlPattern.test(url)}`);
     return this.contentUrlPattern.test(url);
   }
 
