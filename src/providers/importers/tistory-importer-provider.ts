@@ -1,3 +1,4 @@
+import cheerio from "cheerio";
 import RssParser from "rss-parser";
 import * as Uri from "uri-js";
 import { Importer, IBlog } from "../../interfaces";
@@ -27,6 +28,12 @@ export class TistoryImporterProvider implements IImporterProvider {
     } catch(e) {
       throw e;
     }
+  }
+
+  getDom(dom: CheerioStatic): CheerioStatic {
+    dom(".tt-calendar").remove();
+
+    return dom;
   }
 
   getTitle(dom: CheerioStatic): string {

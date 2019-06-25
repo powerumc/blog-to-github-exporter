@@ -1,6 +1,10 @@
 import * as Uri from "uri-js";
 
 export function getNormalizeUriComponents(url: string, baseUrl?: string): Uri.URIComponents {
+  if (url.endsWith("/")) {
+    url = url.substring(0, url.length - 1);
+  }
+
   let uri = Uri.parse(url);
   if (!uri.host) {
     uri = Uri.parse(Uri.resolve(baseUrl!, url));

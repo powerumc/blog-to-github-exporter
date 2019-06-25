@@ -45,8 +45,10 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
     this.current++;
     console.log(`(${this.current}) ${url}`);
 
-    const dom = await this.provider.getHtml(url);
+    let dom = await this.provider.getHtml(url);
     if (dom === null) return;
+
+    dom = this.importer.getDom(dom);
 
     this.pages.addCompleted(url);
     if (this.importer.isContentUrl(url)) {

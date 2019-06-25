@@ -7,6 +7,7 @@ export interface IImporterProviderConstructor {
 
 export interface IImporterProvider {
   getBlogInfo(dom: CheerioStatic, rss: RssParser.Output): IBlog;
+  getDom(dom: CheerioStatic): CheerioStatic;
   getTitle(dom: CheerioStatic): string;
   getContent(dom: CheerioStatic): string | null;
   getLinks(dom: CheerioStatic): string[];
