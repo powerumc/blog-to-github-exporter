@@ -1,12 +1,13 @@
 import process from "process";
-import fs from "fs";
 import * as Uri from "uri-js";
+import chalk from "chalk";
 import { ICrawler, CrawlingInfo, ICrawlingContentInfo } from "./interfaces";
 import { CrawlerProvider, ICrawlerProviderConstructor } from "./providers"
 import { IImporterProviderConstructor, IImporterProvider } from "../providers";
 import { getNormalizeUrl } from "..";
 import { getNormalizeUriComponents, delay } from "../utils";
 import { URIComponents } from "uri-js";
+import { ILogger, ConsoleLogger } from "../logging";
 
 export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
@@ -15,6 +16,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   private pages = new CrawlingInfo();
   private importer: IImporterProvider;
   private current: number = 0;
+  private logger: ILogger;
 
   constructor(private baseUrl: string,
     providerType: ICrawlerProviderConstructor<TProvider>,
@@ -22,6 +24,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
     this.baseUriComponent = Uri.parse(baseUrl);
     this.provider = new providerType(baseUrl);
     this.importer = new importer(baseUrl);
+    this.logger = new ConsoleLogger();
 
     process.on("SIGINT", (signal) => {
       console.log("Interrupted");
@@ -42,11 +45,13 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   }
 
   async recursive(url: string): Promise<void> {
-    this.current++;
-    console.log(`(${this.current}) ${url}`);
+    this.logger.write(`(${this.current}) ${url}`);
 
     let dom = await this.provider.getHtml(url);
-    if (dom === null) return;
+    if (dom === null) {
+      this.logger.writeLine("  - skip");
+      return;
+    };
 
     dom = this.importer.getDom(dom);
 
@@ -59,7 +64,10 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
         category: this.importer.getCategory(dom),
         date: this.importer.getDate(dom)
       });
+      this.logger.write(chalk`  {yellow - success}`)
     }
+
+    this.logger.writeLine();
 
     const links = this.importer.getLinks(dom);
     for (const link of links) {
@@ -70,11 +78,13 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
       if (this.importer.isIgnoreUrl(urlString)) continue;
       if (this.pages.isIncludesQueue(urlString)) continue;
 
-      console.log(`\t- detected (${this.pages.urls.length + this.pages.completedUrls.length}): ${urlString}`);
+      const queueNumber = this.pages.urls.length + this.pages.completedUrls.length;
+      this.logger.writeLine(chalk`\t{gray - detected (${queueNumber.toString()}): ${urlString}}`);
       this.pages.addQueue(urlString);
     }
 
     await delay(3000);
+    this.current++;
 
     let next: string | null;
     while ((next = this.pages.popQueue()) !== null) {
@@ -84,6 +94,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
   load() {
     this.pages.load(this.baseUriComponent.host + ".json");
+    this.current = this.pages.completedUrls.length;
   }
 
   save() {
