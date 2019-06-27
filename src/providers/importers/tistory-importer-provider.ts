@@ -8,8 +8,10 @@ import { IImporterProvider } from "..";
 export class TistoryImporterProvider implements IImporterProvider {
 
   private contentUrlPattern: RegExp;
+  private datePattern = /[0-9]{4}\.[0-9]{2}\.[0-9]{2} [0-9]{2}:[0-9]{2}/;
 
   constructor(private baseUrl: string) {
+    console.log(`baseUrl=${baseUrl}`);
     this.contentUrlPattern = new RegExp(`${this.baseUrl}\/([0-9]+$|(entry\/.+$))`);
   }
 
@@ -37,11 +39,11 @@ export class TistoryImporterProvider implements IImporterProvider {
   }
 
   getTitle(dom: CheerioStatic): string {
-    return dom(".titleWrap h2 a").text();
+    return dom(".tit_post a").text();
   }
 
   getContent(dom: CheerioStatic): string | null {
-    return dom(".article").html();
+    return dom(".tt_article_useless_p_margin p").html();
   }
 
   getLinks(dom: CheerioStatic): string[] {
@@ -59,10 +61,16 @@ export class TistoryImporterProvider implements IImporterProvider {
   }
 
   getCategory(dom: CheerioStatic): string {
-    return dom(".entry .titleWrap a").last().text();
+    return dom(".tit_category a").text();
   }
 
   getDate(dom: CheerioStatic): string {
+    const text = dom(".txt_detail.my_post").text();
+    const result = this.datePattern.exec(text);
+    if (result && result.length > 0) {
+      return result[0];
+    }
+
     return "";
   }
 

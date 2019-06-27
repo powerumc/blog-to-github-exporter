@@ -16,19 +16,19 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   private importer: IImporterProvider;
   private current: number = 0;
 
-  constructor(private baseUrl: string, 
+  constructor(private baseUrl: string,
     providerType: ICrawlerProviderConstructor<TProvider>,
     importer: IImporterProviderConstructor) {
-      this.baseUriComponent = Uri.parse(baseUrl);
-      this.provider = new providerType(baseUrl);
-      this.importer = new importer(baseUrl);
+    this.baseUriComponent = Uri.parse(baseUrl);
+    this.provider = new providerType(baseUrl);
+    this.importer = new importer(baseUrl);
 
-      process.on("SIGINT", (signal) => {
-        console.log("Interrupted");
-        process.removeAllListeners();
-        this.save();
-        process.exit();
-      });
+    process.on("SIGINT", (signal) => {
+      console.log("Interrupted");
+      process.removeAllListeners();
+      this.save();
+      process.exit();
+    });
   }
 
   async process() {
@@ -62,7 +62,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
     }
 
     const links = this.importer.getLinks(dom);
-    for(const link of links) {
+    for (const link of links) {
       const url = getNormalizeUriComponents(link, this.baseUrl);
       const urlString = Uri.serialize(url);
 
@@ -70,7 +70,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
       if (this.importer.isIgnoreUrl(urlString)) continue;
       if (this.pages.isIncludesQueue(urlString)) continue;
 
-      console.log(`\t- detected (${this.pages.urls.length}): ${urlString}`);
+      console.log(`\t- detected (${this.pages.urls.length + this.pages.completedUrls.length}): ${urlString}`);
       this.pages.addQueue(urlString);
     }
 
@@ -89,5 +89,5 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   save() {
     this.pages.save(this.baseUriComponent.host + ".json");
   }
-  
+
 }
