@@ -1,18 +1,20 @@
-import * as a from "./providers";
-import { importers } from "./interfaces";
-import { AxioCrawler } from "./crawls";
+import { AxioCrawlerProvider, CrawlerProvider } from "./crawls/providers";
 import { TistoryImporterProvider } from "./providers";
+import { Crawler } from "./crawls/crawler";
+import { getNormalizeUrl } from "./utils";
 
 (async () => {
 
-  const baseUrl = "https://blog.powerumc.kr";
-  const crawler = new AxioCrawler(baseUrl);
-  const dom = await crawler.getHtml(baseUrl);
-  const rssUrl = crawler.detectRssFeedsUrl(dom);
-  const rss = await crawler.getRss(rssUrl);
-  
-  const importer = new TistoryImporterProvider();
-  const info = importer.getBlogInfo(dom, rss);
+  const baseUrl = getNormalizeUrl("https://b2g-blog.tistory.com");
+  const crawler = new Crawler(baseUrl, AxioCrawlerProvider, TistoryImporterProvider);
+  crawler.load();
 
-  console.log(info);
+  try {
+    await crawler.process();
+  } catch(e) {
+    throw e;
+  } finally {
+    crawler.save();
+  }
+  
 })();
