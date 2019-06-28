@@ -1,3 +1,4 @@
+import moment from "moment";
 import cheerio from "cheerio";
 import RssParser from "rss-parser";
 import * as Uri from "uri-js";
@@ -80,14 +81,14 @@ export class TistoryImporterProvider implements IImporterProvider {
       tags;
   }
 
-  getDate(dom: CheerioStatic): string {
+  getDate(dom: CheerioStatic): Date | null {
     const text = dom(".txt_detail.my_post").text();
     const result = this.datePattern.exec(text);
     if (result && result.length > 0) {
-      return result[0];
+      return moment(result[0], "YYYY.MM.DD HH:mm").toDate();
     }
 
-    return "";
+    return null;
   }
 
   isContentUrl(url: string): boolean {

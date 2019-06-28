@@ -10,7 +10,7 @@ export interface ICrawlingContentInfo {
   content: string | null;
   category: string;
   tags: string[];
-  date: string;
+  date: Date | null;
 }
 
 export class CrawlingInfo {
