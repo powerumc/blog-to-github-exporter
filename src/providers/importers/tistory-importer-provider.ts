@@ -7,12 +7,14 @@ import { IImporterProvider } from "..";
 @Importer("tistory")
 export class TistoryImporterProvider implements IImporterProvider {
 
+  private defaultPattern = (url: string) => `${url}\/([0-9]+$|(entry\/.+$))`;
   private contentUrlPattern: RegExp;
   private datePattern = /[0-9]{4}\.[0-9]{2}\.[0-9]{2} [0-9]{2}:[0-9]{2}/;
+  private ignoreContentUrlPattern = /category=[0-9]+$/;
 
   constructor(private baseUrl: string) {
     console.log(`baseUrl=${baseUrl}`);
-    this.contentUrlPattern = new RegExp(`${this.baseUrl}\/([0-9]+$|(entry\/.+$))`);
+    this.contentUrlPattern = new RegExp(this.defaultPattern(baseUrl));
   }
 
   getBlogInfo(dom: CheerioStatic, rss: RssParser.Output): IBlog {
@@ -43,7 +45,13 @@ export class TistoryImporterProvider implements IImporterProvider {
   }
 
   getContent(dom: CheerioStatic): string | null {
-    return dom(".tt_article_useless_p_margin p").html();
+    return dom(".area_view")
+            .clone()
+            .remove("div[class^=container]")
+            .remove("div[class*=plugin]")
+            .remove(".another_category")
+            .remove("div[style='text-align:left; padding-top:10px;clear:both']>iframe")
+            .html();
   }
 
   getLinks(dom: CheerioStatic): string[] {
@@ -64,6 +72,14 @@ export class TistoryImporterProvider implements IImporterProvider {
     return dom(".tit_category a").text();
   }
 
+  getTags(dom: CheerioStatic): string[] {
+    const tags = dom(".desc_tag").text().split(",").map(o => o.trim());
+
+    return (tags.length === 1 && tags[0] === "") 
+      ? []:
+      tags;
+  }
+
   getDate(dom: CheerioStatic): string {
     const text = dom(".txt_detail.my_post").text();
     const result = this.datePattern.exec(text);
@@ -81,6 +97,7 @@ export class TistoryImporterProvider implements IImporterProvider {
   isIgnoreUrl(url: string): boolean {
     return url.includes("attachment/") ||
       url.includes("upload/") ||
-      url.includes("#");
+      url.includes("#") ||
+      this.ignoreContentUrlPattern.test(url);
   }
 }

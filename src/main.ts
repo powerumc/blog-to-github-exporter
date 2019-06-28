@@ -5,7 +5,7 @@ import { getNormalizeUrl } from "./utils";
 
 (async () => {
 
-  const baseUrl = getNormalizeUrl("https://b2g-blog.tistory.com");
+  const baseUrl = getNormalizeUrl("https://blog.powerumc.kr");
   const crawler = new Crawler(baseUrl, AxioCrawlerProvider, TistoryImporterProvider);
   crawler.load();
 

@@ -12,6 +12,7 @@ export interface IImporterProvider {
   getContent(dom: CheerioStatic): string | null;
   getLinks(dom: CheerioStatic): string[];
   getCategory(dom: CheerioStatic): string;
+  getTags(dom: CheerioStatic): string[];
   getDate(dom: CheerioStatic): string;
   isContentUrl(url: string): boolean;
   isIgnoreUrl(url: string): boolean;

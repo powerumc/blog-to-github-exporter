@@ -62,6 +62,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
         title: this.importer.getTitle(dom),
         content: this.importer.getContent(dom),
         category: this.importer.getCategory(dom),
+        tags: this.importer.getTags(dom),
         date: this.importer.getDate(dom)
       });
       this.logger.write(chalk`  {yellow - success}`)

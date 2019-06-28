@@ -9,6 +9,7 @@ export interface ICrawlingContentInfo {
   url: string;
   content: string | null;
   category: string;
+  tags: string[];
   date: string;
 }
 
