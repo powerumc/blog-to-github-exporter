@@ -38,7 +38,7 @@ export function Exporter(name: string) {
       throw new Error(`Already exists exporter name '${name}'`);
     }
 
-    exporters[name] = constructor;
+    exporters[name] = <IExporterProvider><unknown>constructor;
 
     return class extends constructor { }
   }

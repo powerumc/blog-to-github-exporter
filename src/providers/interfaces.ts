@@ -1,5 +1,7 @@
 import RssParser from "rss-parser";
 import { IBlog } from "../interfaces";
+import { CrawlingInfo } from "../crawls/interfaces";
+import { ILogger } from "../logging";
 
 export interface IImporterProviderConstructor {
   new (baseUrl: string): IImporterProvider;
@@ -18,9 +20,10 @@ export interface IImporterProvider {
   isIgnoreUrl(url: string): boolean;
 }
 
-export interface IExporterProviderConstructor<T> {
-  new (engine: T): IExporterProvider;
+export interface IExporterProviderConstructor {
+  new (logger: ILogger): IExporterProvider;
 }
 
 export interface IExporterProvider {
+  export(pages: CrawlingInfo, outputDirPath: string): void;
 }

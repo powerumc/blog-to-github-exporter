@@ -3,7 +3,7 @@ import * as Uri from "uri-js";
 import chalk from "chalk";
 import { ICrawler, CrawlingInfo, ICrawlingContentInfo } from "./interfaces";
 import { CrawlerProvider, ICrawlerProviderConstructor } from "./providers"
-import { IImporterProviderConstructor, IImporterProvider } from "../providers";
+import { IImporterProviderConstructor, IImporterProvider, IExporterProviderConstructor, IExporterProvider } from "../providers";
 import { getNormalizeUrl } from "..";
 import { getNormalizeUriComponents, delay } from "../utils";
 import { URIComponents } from "uri-js";
@@ -15,16 +15,19 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   private provider: CrawlerProvider;
   private pages = new CrawlingInfo();
   private importer: IImporterProvider;
+  private exporter: IExporterProvider;
   private current: number = 0;
   private logger: ILogger;
 
   constructor(private baseUrl: string,
     providerType: ICrawlerProviderConstructor<TProvider>,
-    importer: IImporterProviderConstructor) {
+    importer: IImporterProviderConstructor,
+    exporter: IExporterProviderConstructor) {
+    this.logger = new ConsoleLogger();
     this.baseUriComponent = Uri.parse(baseUrl);
     this.provider = new providerType(baseUrl);
     this.importer = new importer(baseUrl);
-    this.logger = new ConsoleLogger();
+    this.exporter = new exporter(this.logger);
 
     process.on("SIGINT", (signal) => {
       console.log("Interrupted");
@@ -34,17 +37,31 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
     });
   }
 
-  async process() {
-    const dom = await this.provider.getHtml(this.baseUrl);
-    if (dom === null) return;
+  async import(): Promise<void> {
+    try {
+      const dom = await this.provider.getHtml(this.baseUrl);
+      if (dom === null) return;
 
-    const rssUrl = this.provider.detectRssFeedsUrl(dom);
-    const rss = await this.provider.getRss(rssUrl);
+      const rssUrl = this.provider.detectRssFeedsUrl(dom);
+      const rss = await this.provider.getRss(rssUrl);
 
-    await this.recursive(this.baseUrl);
+      await this.importCore(this.baseUrl);
+    } catch(e) {
+      throw e;
+    } finally {
+      this.save();
+    }
   }
 
-  async recursive(url: string): Promise<void> {
+  export(outputDirPath: string): void {
+    try {
+      this.exporter.export(this.pages, outputDirPath);
+    } catch(e) {
+      throw e;
+    }
+  }
+
+  async importCore(url: string): Promise<void> {
     this.logger.write(`(${this.current}) ${url}`);
 
     let dom = await this.provider.getHtml(url);
@@ -89,17 +106,21 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
     let next: string | null;
     while ((next = this.pages.popQueue()) !== null) {
-      await this.recursive(next);
+      await this.importCore(next);
     }
   }
 
-  load() {
+  load(): void {
     this.pages.load(this.baseUriComponent.host + ".json");
     this.current = this.pages.completedUrls.length;
   }
 
-  save() {
+  save(): void {
     this.pages.save(this.baseUriComponent.host + ".json");
+  }
+
+  get isDone(): boolean {
+    return this.pages.urls.length === 0;
   }
 
 }

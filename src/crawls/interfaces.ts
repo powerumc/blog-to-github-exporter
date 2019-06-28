@@ -2,6 +2,11 @@ import * as fs from "fs";
 import { URIComponents } from "uri-js";
 
 export interface ICrawler {
+  import(): Promise<void>;
+  export(outputDirPath: string): void;
+  load(): void;
+  save(): void;
+  isDone: boolean;
 }
 
 export interface ICrawlingContentInfo {
