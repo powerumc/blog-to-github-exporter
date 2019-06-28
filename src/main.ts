@@ -4,6 +4,7 @@ import { Crawler } from "./crawls/crawler";
 import { getNormalizeUrl } from "./utils";
 import { ICrawler } from "./crawls/interfaces";
 import { HexoExporterProvider } from "./providers/exporters";
+import { UpndownEngine } from "./providers/exporters/engines";
 
 (async () => {
 
@@ -13,7 +14,7 @@ import { HexoExporterProvider } from "./providers/exporters";
 
   try {
     if (crawler.isDone) {
-      await crawler.export(process.cwd());
+      await crawler.export(process.cwd(), UpndownEngine);
     } else {
       await crawler.import();
     }

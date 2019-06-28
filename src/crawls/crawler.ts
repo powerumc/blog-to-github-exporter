@@ -8,6 +8,7 @@ import { getNormalizeUrl } from "..";
 import { getNormalizeUriComponents, delay } from "../utils";
 import { URIComponents } from "uri-js";
 import { ILogger, ConsoleLogger } from "../logging";
+import { IEngineConstructor } from "../providers/exporters/engines";
 
 export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
@@ -53,9 +54,9 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
     }
   }
 
-  export(outputDirPath: string): void {
+  async export(outputDirPath: string, engine: IEngineConstructor): Promise<void> {
     try {
-      this.exporter.export(this.pages, outputDirPath);
+      await this.exporter.export(this.pages, outputDirPath, engine);
     } catch(e) {
       throw e;
     }

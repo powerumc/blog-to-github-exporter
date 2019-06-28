@@ -2,6 +2,7 @@ import RssParser from "rss-parser";
 import { IBlog } from "../interfaces";
 import { CrawlingInfo } from "../crawls/interfaces";
 import { ILogger } from "../logging";
+import { IEngineConstructor } from "./exporters/engines";
 
 export interface IImporterProviderConstructor {
   new (baseUrl: string): IImporterProvider;
@@ -25,5 +26,5 @@ export interface IExporterProviderConstructor {
 }
 
 export interface IExporterProvider {
-  export(pages: CrawlingInfo, outputDirPath: string): void;
+  export(pages: CrawlingInfo, outputDirPath: string, engine: IEngineConstructor): Promise<void>;
 }

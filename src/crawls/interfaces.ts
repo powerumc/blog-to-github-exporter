@@ -1,9 +1,10 @@
 import * as fs from "fs";
 import { URIComponents } from "uri-js";
+import { IEngineConstructor } from "../providers/exporters/engines";
 
 export interface ICrawler {
   import(): Promise<void>;
-  export(outputDirPath: string): void;
+  export(outputDirPath: string, engine: IEngineConstructor): Promise<void>;
   load(): void;
   save(): void;
   isDone: boolean;

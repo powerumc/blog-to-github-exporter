@@ -14,7 +14,6 @@ export class TistoryImporterProvider implements IImporterProvider {
   private ignoreContentUrlPattern = /category=[0-9]+$/;
 
   constructor(private baseUrl: string) {
-    console.log(`baseUrl=${baseUrl}`);
     this.contentUrlPattern = new RegExp(this.defaultPattern(baseUrl));
   }
 
