@@ -1,0 +1,58 @@
+{
+  "name": "blog-to-github-exporter",
+  "version": "0.0.1",
+  "description": "Export to github blog from exists blog system.",
+  "bin": {
+    "b2g": "./dist/bin/main.js"
+  },
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/powerumc/blog-to-github-exporter.git"
+  },
+  "keywords": [
+    "blog",
+    "github",
+    "naver",
+    "tistory",
+    "wordpress",
+    "hexo",
+    "jekyll"
+  ],
+  "author": "powerumc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/powerumc/blog-to-github-exporter/issues"
+  },
+  "homepage": "https://github.com/powerumc/blog-to-github-exporter#readme",
+  "dependencies": {
+    "reflect-metadata": "0.1.13",
+    "turndown": "^5.0.3",
+    "axios": "0.19.0",
+    "cheerio": "1.0.0-rc.3",
+    "showdown": "1.9.0",
+    "jsdom": "15.1.1",
+    "upndown": "2.1.0",
+    "@microsoft/ts-command-line": "4.2.6",
+    "inquirer": "6.3.1",
+    "moment": "2.24.0",
+    "rss-parser": "3.7.1",
+    "uri-js": "4.2.2",
+    "chalk": "2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "10.0.3",
+    "@types/cheerio": "0.22.7",
+    "@types/showdown": "1.9.3",
+    "@types/jsdom": "11.0.4",
+    "@types/moment": "2.13.0",
+    "@types/xml2js": "0.4.4",
+    "@types/chalk": "2.2.0",
+    "typescript": "3.5.2",
+    "rimraf": "2.6.3",
+    "npm-run-all": "4.1.5"
+  }
+}
