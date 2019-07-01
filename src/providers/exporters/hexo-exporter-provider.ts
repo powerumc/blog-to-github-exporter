@@ -46,7 +46,8 @@ tags: ${tags}
 `;
         const filename = this.getNormalizedFileName(content.title) + ".md";
         const postFilePath = path.join(postPath, filename);
-        const markdownPost = await e.generate(content.content);
+        // https://hexo.io/docs/troubleshooting.html#Escape-Contents
+        const markdownPost = (await e.generate(content.content)); //.replace(/({{.*}})/gm, `{% raw %}$1{% endraw %}`);
         post += markdownPost;
 
         fs.writeFileSync(postFilePath, post, {encoding: "utf8"});
@@ -73,7 +74,8 @@ tags: ${tags}
   }
 
   private getNormalizedFileName(filename: string): string {
-    filename = filename.replace(/[\+\~\"\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_");
+    filename = filename.replace(/[\=\-\!\+\~\"\'\`\@\~\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_");
+    filename = filename.replace(/[_]+/g, "_");
     const filenameResult = /[^_\.\-].+/g.exec(filename);
     if (filenameResult && filenameResult.length > 0) {
       return filenameResult[0];
