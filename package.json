@@ -1,7 +1,7 @@
 {
-  "name": "blog-to-github-exporter",
+  "name": "b2g",
   "version": "0.0.1",
-  "description": "Export to github blog from exists blog system.",
+  "description": "Exports to github blog from exists blog system.",
   "bin": {
     "b2g": "./dist/bin/main.js"
   },

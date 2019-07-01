@@ -1,16 +1,23 @@
 # Blog to Github Exporter
-Export to github blog from exists blog system.
+Exports to github blog from exists blog system.
 
 ## Features
+- Crawling your blog posts.
+- Convert to markdown.
 
-### Supports blogs
-- [ ] [Tistory](https://tistory.com/)
+### Importer
+- [x] [Tistory](https://tistory.com/)
 - [ ] [Naver](https://blog.naver.com)
 - [ ] [Wordpress](https://wordpress.com)
 
-### Exports to
-- [ ] [Hexo](https://hexo.io)
+### Exporter
+- [x] [Hexo](https://hexo.io)
 - [ ] [Jekyll](https://jekyllrb.com)
+
+## Exporter Engines
+- [x] [Upndown](https://github.com/netgusto/upndown)
+- [ ] [Turndown](https://github.com/domchristie/turndown)
+- [ ] [Showdown](https://github.com/showdownjs/showdown)
 
 ### Comments
 - [ ] [Disqus](https://disqus.com/)
@@ -18,5 +25,5 @@ Export to github blog from exists blog system.
 ## Usage
 
 1. Install [Node.js](https://nodejs.org/)
-2. `npm install -g blog-exporter`
-3. `blog-exporter`
+2. `npm install -g b2g`
+3. `b2g`
