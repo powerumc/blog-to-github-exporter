@@ -45,13 +45,14 @@ export class TistoryImporterProvider implements IImporterProvider {
   }
 
   getContent(dom: CheerioStatic): string | null {
-    return dom(".area_view")
-            .clone()
-            .remove("div[class^=container]")
-            .remove("div[class*=plugin]")
-            .remove(".another_category")
-            .remove("div[style='text-align:left; padding-top:10px;clear:both']>iframe")
-            .html();
+    const element = dom(".area_view");
+
+    element.find(".another_category").remove();
+    element.find("div>iframe").parent().remove();
+    this.domElementAction(element.find("div[class]"), e => e.attribs["class"].split(" ").filter( o => o.startsWith("container_")).length > 0, e => e.remove());
+    this.domElementAction(element.find("div[class]"), e => e.attribs["class"].split(" ").filter( o => o.endsWith("plugin")).length > 0, e => e.remove());
+
+    return element.html();
   }
 
   getLinks(dom: CheerioStatic): string[] {
@@ -99,5 +100,13 @@ export class TistoryImporterProvider implements IImporterProvider {
       url.includes("upload/") ||
       url.includes("#") ||
       this.ignoreContentUrlPattern.test(url);
+  }
+
+  private domElementAction(dom: Cheerio, predicate: (e: CheerioElement) => boolean, then: (e: Cheerio) => void): void {
+    dom.each((i, e) => {
+      if (predicate(e)) {
+        then(cheerio(e));
+      }
+    });
   }
 }

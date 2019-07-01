@@ -1,6 +1,6 @@
 import RssParser from "rss-parser";
-import { IBlog } from "../interfaces";
-import { CrawlingInfo } from "../crawls/interfaces";
+import { IBlog } from "..";
+import { CrawlingInfo } from "../crawls";
 import { ILogger } from "../logging";
 import { IEngineConstructor } from "./exporters/engines";
 

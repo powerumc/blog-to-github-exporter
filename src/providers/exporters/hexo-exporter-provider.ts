@@ -2,9 +2,9 @@ import * as fs from "fs";
 import * as path from "path";
 import chalk from "chalk";
 import moment from "moment";
-import { Exporter } from "../../interfaces";
+import { Exporter } from "../..";
 import { IExporterProvider } from "..";
-import { CrawlingInfo } from "../../crawls/interfaces";
+import { CrawlingInfo } from "../../crawls";
 import { ILogger } from "../../logging";
 import { IEngineConstructor } from "./engines";
 
@@ -73,7 +73,13 @@ tags: ${tags}
   }
 
   private getNormalizedFileName(filename: string): string {
-    return filename.replace(/[\~\"\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_").trim();
+    filename = filename.replace(/[\+\~\"\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_");
+    const filenameResult = /[^_\.\-].+/g.exec(filename);
+    if (filenameResult && filenameResult.length > 0) {
+      return filenameResult[0];
+    }
+    
+    return filename;
   }
 
 }
