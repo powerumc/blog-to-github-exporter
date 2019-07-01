@@ -73,7 +73,13 @@ tags: ${tags}
   }
 
   private getNormalizedFileName(filename: string): string {
-    return filename.replace(/[\~\"\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_").trim();
+    filename = filename.replace(/[\+\~\"\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_");
+    const filenameResult = /[^_\.\-].+/g.exec(filename);
+    if (filenameResult && filenameResult.length > 0) {
+      return filenameResult[0];
+    }
+    
+    return filename;
   }
 
 }
