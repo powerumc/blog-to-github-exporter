@@ -1,12 +1,12 @@
 import process from "process";
 import * as Uri from "uri-js";
 import chalk from "chalk";
-import { ICrawler, CrawlingInfo, ICrawlingContentInfo } from "./interfaces";
+import { URIComponents } from "uri-js";
+import { ICrawler } from ".";
+import { CrawlingInfo } from "./crawling-info";
 import { CrawlerProvider, ICrawlerProviderConstructor } from "./providers"
 import { IImporterProviderConstructor, IImporterProvider, IExporterProviderConstructor, IExporterProvider } from "../providers";
-import { getNormalizeUrl } from "..";
 import { getNormalizeUriComponents, delay } from "../utils";
-import { URIComponents } from "uri-js";
 import { ILogger, ConsoleLogger } from "../logging";
 import { IEngineConstructor } from "../providers/exporters/engines";
 
@@ -18,6 +18,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   private importer: IImporterProvider;
   private exporter: IExporterProvider;
   private current: number = 0;
+  private isLoadedFile = false;
   private logger: ILogger;
 
   constructor(private baseUrl: string,
@@ -112,7 +113,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   }
 
   load(): void {
-    this.pages.load(this.baseUriComponent.host + ".json");
+    this.isLoadedFile = this.pages.load(this.baseUriComponent.host + ".json");
     this.current = this.pages.completedUrls.length;
   }
 
@@ -121,7 +122,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
   }
 
   get isDone(): boolean {
-    return this.pages.urls.length === 0;
+    return this.isLoadedFile && this.pages.urls.length === 0;
   }
 
 }

@@ -17,6 +17,7 @@ import { UpndownEngine } from "./providers/exporters/engines";
       await crawler.export(process.cwd(), UpndownEngine);
     } else {
       await crawler.import();
+      await crawler.export(process.cwd(), UpndownEngine);
     }
   } catch(e) {
     console.error(e);
