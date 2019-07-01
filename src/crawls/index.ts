@@ -1,2 +1,3 @@
+export * from "./crawler";
 export * from "./interfaces";
-export * from "./axio-crawler";
+export * from "./crawling-info";

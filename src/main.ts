@@ -1,18 +1,25 @@
-import * as a from "./providers";
-import { importers } from "./interfaces";
-import { AxioCrawler } from "./crawls";
+import { AxioCrawlerProvider, CrawlerProvider } from "./crawls/providers";
 import { TistoryImporterProvider } from "./providers";
+import { Crawler } from "./crawls/crawler";
+import { getNormalizeUrl } from "./utils";
+import { ICrawler } from "./crawls/interfaces";
+import { HexoExporterProvider } from "./providers/exporters";
+import { UpndownEngine } from "./providers/exporters/engines";
 
 (async () => {
 
-  const baseUrl = "https://blog.powerumc.kr";
-  const crawler = new AxioCrawler(baseUrl);
-  const dom = await crawler.getHtml(baseUrl);
-  const rssUrl = crawler.detectRssFeedsUrl(dom);
-  const rss = await crawler.getRss(rssUrl);
-  
-  const importer = new TistoryImporterProvider();
-  const info = importer.getBlogInfo(dom, rss);
+  const baseUrl = getNormalizeUrl("https://blog.powerumc.kr");
+  const crawler: ICrawler = new Crawler(baseUrl, AxioCrawlerProvider, TistoryImporterProvider, HexoExporterProvider);
+  crawler.load();
 
-  console.log(info);
+  try {
+    if (crawler.isDone) {
+      await crawler.export(process.cwd(), UpndownEngine);
+    } else {
+      await crawler.import();
+      await crawler.export(process.cwd(), UpndownEngine);
+    }
+  } catch(e) {
+    console.error(e);
+  }
 })();
