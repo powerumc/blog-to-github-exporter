@@ -12,7 +12,7 @@ Exports to github blog from exists blog system.
 
 ### Exporter
 - [x] [Hexo](https://hexo.io)
-- [ ] [Jekyll](https://jekyllrb.com)
+- [x] [Jekyll](https://jekyllrb.com)
 
 ## Exporter Engines
 - [x] [Upndown](https://github.com/netgusto/upndown)
