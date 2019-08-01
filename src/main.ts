@@ -3,13 +3,13 @@ import { TistoryImporterProvider } from "./providers";
 import { Crawler } from "./crawls/crawler";
 import { getNormalizedUrl } from "./utils";
 import { ICrawler } from "./crawls/interfaces";
-import { HexoExporterProvider } from "./providers/exporters";
+import { HexoExporterProvider, JekyllExporterProvider } from "./providers/exporters";
 import { UpndownEngine } from "./providers/exporters/engines";
 
 (async () => {
 
   const baseUrl = getNormalizedUrl("https://blog.powerumc.kr");
-  const crawler: ICrawler = new Crawler(baseUrl, AxioCrawlerProvider, TistoryImporterProvider, HexoExporterProvider);
+  const crawler: ICrawler = new Crawler(baseUrl, AxioCrawlerProvider, TistoryImporterProvider, JekyllExporterProvider);
   crawler.load();
 
   try {

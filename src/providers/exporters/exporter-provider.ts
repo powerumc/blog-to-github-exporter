@@ -24,10 +24,7 @@ export abstract class ExporterProvider implements IExporterProvider {
 
   protected abstract getPostDirPath(outputDirPath: string): string;
   protected abstract getPostFormat(outputDirPath: string, content: ICrawlingContentInfo): string;
-  protected getPostFilePath(postOutputDirPath: string, content: ICrawlingContentInfo): string {
-    const filename = this.getNormalizedFileName(content.title) + ".md";
-    return path.join(postOutputDirPath, filename);
-  }
+  protected abstract getPostFilePath(postOutputDirPath: string, content: ICrawlingContentInfo): string;
 
   protected async getGeneratedPost(engine: IEngine, content: ICrawlingContentInfo): Promise<string> {
     // https://hexo.io/docs/troubleshooting.html#Escape-Contents
