@@ -16,7 +16,7 @@ export class HexoExporterProvider implements IExporterProvider {
 
   async export(pages: CrawlingInfo, outputDirPath: string, engine: IEngineConstructor): Promise<void> {
 
-    this.valid(outputDirPath);
+    this.validate(outputDirPath);
 
     const e = new engine();
     const postPath = path.join(path.resolve(outputDirPath), "source/_posts");
@@ -36,7 +36,7 @@ export class HexoExporterProvider implements IExporterProvider {
 
         const title = content.title.replace(/\"/g, "\\\"");
         const date = moment(content.date.toString()).format("YYYY-MM-DD HH:mm:ss");
-        const tags = JSON.stringify(content.tags) || [];
+        const tags = JSON.stringify(content.tags || []);
 
         let post = `---
 title: "${title}"
@@ -46,7 +46,9 @@ tags: ${tags}
 `;
         const filename = this.getNormalizedFileName(content.title) + ".md";
         const postFilePath = path.join(postPath, filename);
-        const markdownPost = await e.generate(content.content);
+        // https://hexo.io/docs/troubleshooting.html#Escape-Contents
+        let markdownPost = (await e.generate(content.content));
+        markdownPost = this.replaceEscapeContents(markdownPost);
         post += markdownPost;
 
         fs.writeFileSync(postFilePath, post, {encoding: "utf8"});
@@ -61,7 +63,7 @@ tags: ${tags}
     }
   }
 
-  private valid(outputDirPath: string): void {
+  private validate(outputDirPath: string): void {
     const basePath = path.resolve(outputDirPath);
 
     if (!fs.existsSync(path.join(basePath, ".gitignore")) ||
@@ -73,13 +75,41 @@ tags: ${tags}
   }
 
   private getNormalizedFileName(filename: string): string {
-    filename = filename.replace(/[\+\~\"\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_");
+    filename = filename.replace(/[\=\-\!\+\~\"\'\`\@\~\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_");
+    filename = filename.replace(/[_]+/g, "_");
     const filenameResult = /[^_\.\-].+/g.exec(filename);
     if (filenameResult && filenameResult.length > 0) {
       return filenameResult[0];
     }
     
     return filename;
+  }
+
+  private replaceEscapeContents(markdownContents: string): string {
+    const contents = markdownContents.split("\n");
+    const replcaedContents: string[] = [];
+    let inCodeblock = false;
+
+    for(const content of contents) {
+      if (content.startsWith("```")) {
+        inCodeblock = !inCodeblock;
+      }
+
+      if (content.startsWith("\t") || content.startsWith("    ")) {
+        replcaedContents.push(content);
+        continue;
+      }
+
+      const escapeContentPattern = /(\{[\{\#\%].[^\}]+\}+)/g;
+      if (!inCodeblock && escapeContentPattern.test(content)) {
+        replcaedContents.push(content.replace(escapeContentPattern, "{% raw %}$1{% endraw %}"));
+        continue;
+      }
+      
+      replcaedContents.push(content);
+    }
+
+    return replcaedContents.join("\n");
   }
 
 }
