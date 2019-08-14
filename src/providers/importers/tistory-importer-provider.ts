@@ -2,16 +2,16 @@ import moment from "moment";
 import cheerio from "cheerio";
 import RssParser from "rss-parser";
 import * as Uri from "uri-js";
-import { Importer, IBlog } from "../../interfaces";
-import { IImporterProvider } from "..";
+import {IBlog, Importer} from "../../interfaces";
+import {IImporterProvider} from "..";
 
 @Importer("tistory")
 export class TistoryImporterProvider implements IImporterProvider {
 
-  private defaultPattern = (url: string) => `${url}\/([0-9]+$|(entry\/.+$))`;
-  private contentUrlPattern: RegExp;
-  private datePattern = /[0-9]{4}\.[0-9]{2}\.[0-9]{2} [0-9]{2}:[0-9]{2}/;
-  private ignoreContentUrlPattern = /category=[0-9]+$/;
+  private readonly defaultPattern = (url: string) => `${url}\/([0-9]+$|(entry\/.+$))`;
+  private readonly contentUrlPattern: RegExp;
+  private readonly datePattern = /[0-9]{4}\.[0-9]{2}\.[0-9]{2} [0-9]{2}:[0-9]{2}/;
+  private readonly ignoredContentUrlPattern = /category=[0-9]+$/;
 
   constructor(private baseUrl: string) {
     this.contentUrlPattern = new RegExp(this.defaultPattern(baseUrl));
@@ -19,7 +19,7 @@ export class TistoryImporterProvider implements IImporterProvider {
 
   getBlogInfo(dom: CheerioStatic, rss: RssParser.Output): IBlog {
     try {
-      const info: IBlog = {
+      return {
         url: Uri.parse(rss.link || ""),
         title: dom(`meta[property='og:title']`).attr("content"),
         description: dom(`meta[property='og:description']`).attr("content"),
@@ -27,8 +27,6 @@ export class TistoryImporterProvider implements IImporterProvider {
         feeds: [],
         owner: rss["managingEditor"]
       };
-
-      return info;
     } catch(e) {
       throw e;
     }
@@ -61,7 +59,7 @@ export class TistoryImporterProvider implements IImporterProvider {
     
     for(const a of $anchors.toArray()) {
       const url = a.attribs["href"];
-      if (this.isIgnoreUrl(url)) continue;
+      if (this.isIgnoredUrl(url)) continue;
 
       anchors.push(url);
     }
@@ -77,8 +75,8 @@ export class TistoryImporterProvider implements IImporterProvider {
     const tags = dom(".desc_tag").text().split(",").map(o => o.trim());
 
     return (tags.length === 1 && tags[0] === "") 
-      ? []:
-      tags;
+      ? []
+      : tags;
   }
 
   getDate(dom: CheerioStatic): Date | null {
@@ -95,11 +93,11 @@ export class TistoryImporterProvider implements IImporterProvider {
     return this.contentUrlPattern.test(url);
   }
 
-  isIgnoreUrl(url: string): boolean {
+  isIgnoredUrl(url: string): boolean {
     return url.includes("attachment/") ||
       url.includes("upload/") ||
       url.includes("#") ||
-      this.ignoreContentUrlPattern.test(url);
+      this.ignoredContentUrlPattern.test(url);
   }
 
   private domElementAction(dom: Cheerio, predicate: (e: CheerioElement) => boolean, then: (e: Cheerio) => void): void {

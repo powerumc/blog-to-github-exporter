@@ -1,69 +1,19 @@
 import * as fs from "fs";
 import * as path from "path";
-import chalk from "chalk";
 import moment from "moment";
 import { Exporter } from "../..";
-import { IExporterProvider } from "..";
-import { CrawlingInfo } from "../../crawls";
+import { ICrawlingContentInfo } from "../../crawls";
 import { ILogger } from "../../logging";
-import { IEngineConstructor } from "./engines";
+import { ExporterProvider } from ".";
 
 @Exporter("hexo")
-export class HexoExporterProvider implements IExporterProvider {
+export class HexoExporterProvider extends ExporterProvider {
   
-  constructor(private logger: ILogger) {
+  constructor(logger: ILogger) {
+    super(logger);
   }
 
-  async export(pages: CrawlingInfo, outputDirPath: string, engine: IEngineConstructor): Promise<void> {
-
-    this.validate(outputDirPath);
-
-    const e = new engine();
-    const postPath = path.join(path.resolve(outputDirPath), "source/_posts");
-    
-    for(const key of Object.keys(pages.contents)) {
-      try {
-        const content = pages.contents[key];
-        if (!content.url ||
-            !content.content ||
-            !content.date ||
-            !content.title ||
-            !content.url) {
-              throw new Error("Not enoutgh content");
-            }
-
-        this.logger.write(chalk`${content.url} {gray ${content.title}}`);
-
-        const title = content.title.replace(/\"/g, "\\\"");
-        const date = moment(content.date.toString()).format("YYYY-MM-DD HH:mm:ss");
-        const tags = JSON.stringify(content.tags || []);
-
-        let post = `---
-title: "${title}"
-date: ${date}
-tags: ${tags}
----
-`;
-        const filename = this.getNormalizedFileName(content.title) + ".md";
-        const postFilePath = path.join(postPath, filename);
-        // https://hexo.io/docs/troubleshooting.html#Escape-Contents
-        let markdownPost = (await e.generate(content.content));
-        markdownPost = this.replaceEscapeContents(markdownPost);
-        post += markdownPost;
-
-        fs.writeFileSync(postFilePath, post, {encoding: "utf8"});
-
-        this.logger.write(chalk` - {yellow ok}`);
-      } catch(e) {
-        this.logger.write(chalk` - {red failed}`);
-      }
-
-      this.logger.writeLine();
-
-    }
-  }
-
-  private validate(outputDirPath: string): void {
+  protected validateDir(outputDirPath: string): void {
     const basePath = path.resolve(outputDirPath);
 
     if (!fs.existsSync(path.join(basePath, ".gitignore")) ||
@@ -74,42 +24,21 @@ tags: ${tags}
     }
   }
 
-  private getNormalizedFileName(filename: string): string {
-    filename = filename.replace(/[\=\-\!\+\~\"\'\`\@\~\#\%\&\*\:\<\>\?\/\\\{\|\}\(\)\.\,\[\] ]/g, "_");
-    filename = filename.replace(/[_]+/g, "_");
-    const filenameResult = /[^_\.\-].+/g.exec(filename);
-    if (filenameResult && filenameResult.length > 0) {
-      return filenameResult[0];
-    }
-    
-    return filename;
+  protected getPostDirPath(outputDirPath: string): string {
+    return path.join(path.resolve(outputDirPath), "source/_posts");
   }
 
-  private replaceEscapeContents(markdownContents: string): string {
-    const contents = markdownContents.split("\n");
-    const replcaedContents: string[] = [];
-    let inCodeblock = false;
-
-    for(const content of contents) {
-      if (content.startsWith("```")) {
-        inCodeblock = !inCodeblock;
-      }
-
-      if (content.startsWith("\t") || content.startsWith("    ")) {
-        replcaedContents.push(content);
-        continue;
-      }
-
-      const escapeContentPattern = /(\{[\{\#\%].[^\}]+\}+)/g;
-      if (!inCodeblock && escapeContentPattern.test(content)) {
-        replcaedContents.push(content.replace(escapeContentPattern, "{% raw %}$1{% endraw %}"));
-        continue;
-      }
-      
-      replcaedContents.push(content);
-    }
-
-    return replcaedContents.join("\n");
+  protected getPostFormat(outputDirPath: string, content: ICrawlingContentInfo): string {
+    const title = content.title.replace(/\"/g, "\\\"");
+    const date = moment(content.date!.toString()).format("YYYY-MM-DD HH:mm:ss");
+    const tags = JSON.stringify(content.tags || []);
+    
+    return `---
+title: "${title}"
+date: ${date}
+tags: ${tags}
+---
+`;
   }
 
 }

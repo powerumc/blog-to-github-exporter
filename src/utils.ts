@@ -1,6 +1,6 @@
 import * as Uri from "uri-js";
 
-export function getNormalizeUriComponents(url: string, baseUrl?: string): Uri.URIComponents {
+export function getNormalizedUriComponents(url: string, baseUrl?: string): Uri.URIComponents {
   let uri = Uri.parse(url);
   if (!uri.host) {
     uri = Uri.parse(Uri.resolve(baseUrl!, url));
@@ -9,8 +9,8 @@ export function getNormalizeUriComponents(url: string, baseUrl?: string): Uri.UR
   return uri;
 }
 
-export function getNormalizeUrl(url: string, baseUrl?: string): string {
-  return removeEndsWith(Uri.serialize(getNormalizeUriComponents(url, baseUrl)), "/");
+export function getNormalizedUrl(url: string, baseUrl?: string): string {
+  return removeEndsWith(Uri.serialize(getNormalizedUriComponents(url, baseUrl)), "/");
 }
 
 export async function delay(ms: number): Promise<void> {
