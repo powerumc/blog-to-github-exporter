@@ -1,11 +1,11 @@
-import axios, { AxiosInstance } from "axios";
+import axios, {AxiosInstance} from "axios";
 import cheerio from "cheerio";
 import RssParser from "rss-parser";
-import { CrawlerProvider } from "./crawler-provider";
+import {CrawlerProvider} from "./crawler-provider";
 
 export class AxioCrawlerProvider implements CrawlerProvider {
   
-  private axio: AxiosInstance;
+  private readonly axio: AxiosInstance;
 
   constructor(private baseUrl: string) {
     this.axio = axios.create({
@@ -38,9 +38,7 @@ export class AxioCrawlerProvider implements CrawlerProvider {
       if (!url) return {};
 
       const parser = new RssParser();
-      const rss = await parser.parseURL(url);
-
-      return rss;
+      return await parser.parseURL(url);
     } catch(e) {
       throw e;
     }

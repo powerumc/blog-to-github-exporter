@@ -6,20 +6,20 @@ import { ICrawler } from ".";
 import { CrawlingInfo } from "./crawling-info";
 import { CrawlerProvider, ICrawlerProviderConstructor } from "./providers"
 import { IImporterProviderConstructor, IImporterProvider, IExporterProviderConstructor, IExporterProvider } from "../providers";
-import { getNormalizeUriComponents, delay } from "../utils";
+import { getNormalizedUriComponents, delay } from "../utils";
 import { ILogger, ConsoleLogger } from "../logging";
 import { IEngineConstructor } from "../providers/exporters/engines";
 
 export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
-  private baseUriComponent: URIComponents;
-  private provider: CrawlerProvider;
-  private pages = new CrawlingInfo();
-  private importer: IImporterProvider;
-  private exporter: IExporterProvider;
+  private readonly baseUriComponent: URIComponents;
+  private readonly provider: CrawlerProvider;
+  private readonly pages = new CrawlingInfo();
+  private readonly importer: IImporterProvider;
+  private readonly exporter: IExporterProvider;
+  private readonly logger: ILogger;
   private current: number = 0;
   private isLoadedFile = false;
-  private logger: ILogger;
 
   constructor(private baseUrl: string,
     providerType: ICrawlerProviderConstructor<TProvider>,
@@ -70,7 +70,7 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
     if (dom === null) {
       this.logger.writeLine("  - skip");
       return;
-    };
+    }
 
     dom = this.importer.getDom(dom);
 
@@ -91,11 +91,11 @@ export class Crawler<TProvider extends CrawlerProvider> implements ICrawler {
 
     const links = this.importer.getLinks(dom);
     for (const link of links) {
-      const url = getNormalizeUriComponents(link, this.baseUrl);
+      const url = getNormalizedUriComponents(link, this.baseUrl);
       const urlString = Uri.serialize(url);
 
       if (url.host !== this.baseUriComponent.host) continue;
-      if (this.importer.isIgnoreUrl(urlString)) continue;
+      if (this.importer.isIgnoredUrl(urlString)) continue;
       if (this.pages.isIncludesQueue(urlString)) continue;
 
       const queueNumber = this.pages.urls.length + this.pages.completedUrls.length;

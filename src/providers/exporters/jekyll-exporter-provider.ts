@@ -1,13 +1,13 @@
-import * as fs from "fs";
-import * as path from "path";
-import moment from "moment";
-import { Exporter } from "../..";
-import { ICrawlingContentInfo } from "../../crawls";
+import path from "path";
+import fs from "fs";
+import { ExporterProvider } from "./exporter-provider";
 import { ILogger } from "../../logging";
-import { ExporterProvider } from ".";
+import { Exporter } from "../../interfaces";
+import { ICrawlingContentInfo } from "../../crawls";
+import moment = require("moment");
 
-@Exporter("hexo")
-export class HexoExporterProvider extends ExporterProvider {
+@Exporter("jekyll")
+export class JekyllExporterProvider extends ExporterProvider {
 
   constructor(logger: ILogger) {
     super(logger);
@@ -17,19 +17,20 @@ export class HexoExporterProvider extends ExporterProvider {
     const basePath = path.resolve(outputDirPath);
 
     if (!fs.existsSync(path.join(basePath, "_config.yml")) ||
-      !fs.existsSync(path.join(basePath, "source/_posts")) ||
-      !fs.existsSync(path.join(basePath, "scaffolds/post.md"))) {
-      throw new Error(`It's not hexo directory: ${outputDirPath}`);
+      !fs.existsSync(path.join(basePath, "_posts"))) {
+        throw new Error(`It's not hexo directory: ${outputDirPath}`);
     }
   }
-
+  
   protected getPostDirPath(outputDirPath: string): string {
-    return path.join(path.resolve(outputDirPath), "source/_posts");
+    return path.join(path.resolve(outputDirPath), "_posts");
   }
 
   protected getPostFilePath(postOutputDirPath: string, content: ICrawlingContentInfo): string {
+    const date = moment(content.date!.toString()).format("YYYY-MM-DD");
     const filename = this.getNormalizedFileName(content.title) + ".md";
-    return path.join(postOutputDirPath, filename);
+    const filepath = `${date}-${filename}`;
+    return path.join(postOutputDirPath, filepath);
   }
 
   protected getPostFormat(outputDirPath: string, content: ICrawlingContentInfo): string {
@@ -38,9 +39,10 @@ export class HexoExporterProvider extends ExporterProvider {
     const tags = JSON.stringify(content.tags || []);
 
     return `---
+layout: post
 title: "${title}"
 date: ${date}
-tags: ${tags}
+categories: ${tags}
 ---
 `;
   }

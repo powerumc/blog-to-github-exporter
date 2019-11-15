@@ -18,7 +18,7 @@ export interface IImporterProvider {
   getTags(dom: CheerioStatic): string[];
   getDate(dom: CheerioStatic): Date | null;
   isContentUrl(url: string): boolean;
-  isIgnoreUrl(url: string): boolean;
+  isIgnoredUrl(url: string): boolean;
 }
 
 export interface IExporterProviderConstructor {
