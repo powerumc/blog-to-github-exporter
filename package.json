@@ -34,7 +34,7 @@
     "axios": "0.19.0",
     "cheerio": "1.0.0-rc.3",
     "showdown": "1.9.0",
-    "jsdom": "15.1.1",
+    "jsdom": "16.5.0",
     "upndown": "2.1.0",
     "@microsoft/ts-command-line": "4.2.6",
     "inquirer": "6.3.1",
