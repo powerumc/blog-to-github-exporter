@@ -38,7 +38,7 @@
     "upndown": "2.1.0",
     "@microsoft/ts-command-line": "4.2.6",
     "inquirer": "6.3.1",
-    "moment": "2.24.0",
+    "moment": "2.29.2",
     "rss-parser": "3.7.1",
     "uri-js": "4.2.2",
     "chalk": "2.4.2"
