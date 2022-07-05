@@ -33,7 +33,7 @@
     "turndown": "^5.0.3",
     "axios": "0.21.2",
     "cheerio": "1.0.0-rc.3",
-    "showdown": "1.9.0",
+    "showdown": "1.9.1",
     "jsdom": "16.5.0",
     "upndown": "2.1.0",
     "@microsoft/ts-command-line": "4.2.6",
