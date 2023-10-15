@@ -3,7 +3,9 @@ Exports to github blog from exists blog system.
 
 ## Features
 - Crawling your blog posts.
-- Convert to markdown.
+- Convert to static markdown blog.
+- Redundant navigation control.
+- Continue crawling after interruption.
 
 ### Importer
 - [x] [Tistory](https://tistory.com/)
@@ -27,3 +29,7 @@ Exports to github blog from exists blog system.
 1. Install [Node.js](https://nodejs.org/)
 2. `npm install -g b2g`
 3. `b2g`
+
+## Demo
+https://github.com/powerumc/blog-to-github-exporter/assets/1943755/ecadb6a0-365f-407e-8d14-1e19c8908476
+
